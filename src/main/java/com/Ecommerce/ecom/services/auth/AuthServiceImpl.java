@@ -5,9 +5,11 @@ import com.Ecommerce.ecom.dto.UserDto;
 import com.Ecommerce.ecom.entity.User;
 import com.Ecommerce.ecom.enums.UserRole;
 import com.Ecommerce.ecom.repository.UserRepository;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PostMapping;
 
 @Service
 public class AuthServiceImpl implements AuthService{
@@ -36,5 +38,22 @@ public class AuthServiceImpl implements AuthService{
     }
     public Boolean hasUserWithEmail(String email){ //Verificara si ya hay un  usuario creado con email y retornara verdadero, de lo contrario falso
         return userRepository.findFirstByEmail(email).isPresent();
+    }
+
+
+
+    //Craer cuenta para el administrador
+    @PostConstruct
+    public void createAdminAccount(){
+        User adminAccount = userRepository.findByRole(UserRole.ADMIN);
+        if (adminAccount == null) {
+            User user = new User();
+            user.setEmail("admin@test.com");
+            user.setName("admin");
+            user.setRole(UserRole.ADMIN);
+            user.setPassword(new BCryptPasswordEncoder().encode("admin"));
+            userRepository.save(user);
+
+        }
     }
 }
